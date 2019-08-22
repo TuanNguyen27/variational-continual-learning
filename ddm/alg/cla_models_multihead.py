@@ -47,7 +47,7 @@ class Cla_NN(object):
         self.x = tf.placeholder(tf.float32, [None, input_size])
         self.y = tf.placeholder(tf.float32, [None, output_size])
         self.task_idx = tf.placeholder(tf.int32)
-        
+
     def assign_optimizer(self, learning_rate=0.001):
         self.train_step = tf.train.AdamOptimizer(learning_rate).minimize(self.cost)
 
@@ -83,7 +83,7 @@ class Cla_NN(object):
                 batch_y = cur_y_train[start_ind:end_ind, :]
                 # Run optimization op (backprop) and cost op (to get loss value)
                 _, c = sess.run(
-                    [self.train_step, self.cost], 
+                    [self.train_step, self.cost],
                     feed_dict={self.x: batch_x, self.y: batch_y, self.task_idx: task_idx})
                 # Compute average loss
                 avg_cost += c / total_batch
@@ -185,14 +185,14 @@ class Vanilla_NN(Cla_NN):
         bi = tf.Variable(bi_val)
         W_last.append(Wi)
         b_last.append(bi)
-            
+
         return W, b, W_last, b_last, hidden_size
 
 
 """ Bayesian Neural Network with Mean field VI approximation """
 class MFVI_NN(Cla_NN):
-    def __init__(self, input_size, hidden_size, output_size, training_size, 
-        no_train_samples=10, no_pred_samples=100, prev_means=None, prev_log_variances=None, learning_rate=0.001, 
+    def __init__(self, input_size, hidden_size, output_size, training_size,
+        no_train_samples=10, no_pred_samples=100, prev_means=None, prev_log_variances=None, learning_rate=0.001,
         prior_mean=0, prior_var=1):
 
         super(MFVI_NN, self).__init__(input_size, hidden_size, output_size, training_size)
@@ -211,7 +211,7 @@ class MFVI_NN(Cla_NN):
         self.no_pred_samples = no_pred_samples
         self.pred = self._prediction(self.x, self.task_idx, self.no_pred_samples)
         self.cost = tf.div(self._KL_term(), training_size) - self._logpred(self.x, self.y, self.task_idx)
-        
+
         self.assign_optimizer(learning_rate)
         self.assign_session()
 
@@ -221,13 +221,13 @@ class MFVI_NN(Cla_NN):
     # this samples a layer at a time
     def _prediction_layer(self, inputs, task_idx, no_samples):
         K = no_samples
-        act = tf.tile(tf.expand_dims(inputs, 0), [K, 1, 1])        
+        act = tf.tile(tf.expand_dims(inputs, 0), [K, 1, 1])
         for i in range(self.no_layers-1):
             din = self.size[i]
             dout = self.size[i+1]
             eps_w = tf.random_normal((K, din, dout), 0, 1, dtype=tf.float32)
             eps_b = tf.random_normal((K, 1, dout), 0, 1, dtype=tf.float32)
-            
+
             weights = tf.add(tf.multiply(eps_w, tf.exp(0.5*self.W_v[i])), self.W_m[i])
             biases = tf.add(tf.multiply(eps_b, tf.exp(0.5*self.b_v[i])), self.b_m[i])
             pre = tf.add(tf.einsum('mni,mio->mno', act, weights), biases)
@@ -351,7 +351,7 @@ class MFVI_NN(Cla_NN):
                 b_i_v = prev_blast_v[i]
                 Wi_v = tf.Variable(W_i_v)
                 bi_v = tf.Variable(b_i_v)
-                
+
                 W_last_m.append(Wi_m)
                 b_last_m.append(bi_m)
                 W_last_v.append(Wi_v)
@@ -378,7 +378,7 @@ class MFVI_NN(Cla_NN):
         b_last_m.append(bi_m)
         W_last_v.append(Wi_v)
         b_last_v.append(bi_v)
-            
+
         return [W_m, b_m, W_last_m, b_last_m], [W_v, b_v, W_last_v, b_last_v], hidden_size
 
     def create_prior(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances, prior_mean, prior_var):
@@ -426,7 +426,7 @@ class MFVI_NN(Cla_NN):
                 bi_m = prev_blast_m[i]
                 Wi_v = np.exp(prev_Wlast_v[i])
                 bi_v = np.exp(prev_blast_v[i])
-                
+
                 W_last_m.append(Wi_m)
                 b_last_m.append(bi_m)
                 W_last_v.append(Wi_v)
@@ -442,5 +442,69 @@ class MFVI_NN(Cla_NN):
         b_last_m.append(bi_m)
         W_last_v.append(Wi_v)
         b_last_v.append(bi_v)
-            
+
         return [W_m, b_m, W_last_m, b_last_m], [W_v, b_v, W_last_v, b_last_v]
+
+
+class CVI_NN(Cla_NN):
+    def __init__(self, input_size, hidden_size, output_size, training_size,
+        no_train_samples=10, no_pred_samples=100, prev_means=None, prev_log_variances=None, learning_rate=0.001,
+        prior_mean=0, prior_var=1):
+
+        super(CVI_NN, self).__init__(input_size, hidden_size, output_size, training_size)
+        self.neural_net = tf.keras.Sequential([
+        tfp.layers.Convolution2DFlipout(6,
+                                        kernel_size=5,
+                                        padding="SAME",
+                                        activation=tf.nn.relu),
+        tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
+                                     strides=[2, 2],
+                                     padding="SAME"),
+        tfp.layers.Convolution2DFlipout(16,
+                                        kernel_size=5,
+                                        padding="SAME",
+                                        activation=tf.nn.relu),
+        tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
+                                     strides=[2, 2],
+                                     padding="SAME"),
+        tfp.layers.Convolution2DFlipout(120,
+                                        kernel_size=5,
+                                        padding="SAME",
+                                        activation=tf.nn.relu),
+        tf.keras.layers.Flatten(),
+        tfp.layers.DenseFlipout(84, activation=tf.nn.relu),
+        tfp.layers.DenseFlipout(10)
+        ])
+
+        self.no_layers = len(self.neural_net.layers)
+        self.no_train_samples = no_train_samples
+        self.no_pred_samples = no_pred_samples
+        self.pred = self._prediction(self.x, self.task_idx, self.no_pred_samples)
+        self.cost = tf.div(self._KL_term(), training_size) - self._logpred(self.x, self.y, self.task_idx)
+
+        self.assign_optimizer(learning_rate)
+        self.assign_session()
+
+    def _prediction(self, inputs, task_idx, no_samples):
+        return self._prediction_layer(inputs, task_idx, no_samples)
+
+    # returns raw prediction ?
+    def _prediction_layer(self, inputs, task_idx, no_samples):
+        return self.neural_net(inputs)
+
+    def _logpred(self, inputs, targets, task_idx):
+        pred = self._prediction(inputs, task_idx, self.no_train_samples)
+        targets = tf.tile(tf.expand_dims(targets, 0), [self.no_train_samples, 1, 1])
+        log_lik = - tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=targets))
+        return log_lik
+
+    def _KL_term(self):
+        return sum(neural_net.losses) / self.no_train_samples
+
+    # def create_weights(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances):
+    #
+    #     return [W_m, b_m, W_last_m, b_last_m], [W_v, b_v, W_last_v, b_last_v], hidden_size
+    #
+    # def create_prior(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances, prior_mean, prior_var):
+    #
+    #     return [W_m, b_m, W_last_m, b_last_m], [W_v, b_v, W_last_v, b_last_v]
