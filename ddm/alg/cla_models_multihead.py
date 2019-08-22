@@ -500,7 +500,7 @@ class CVI_NN(Cla_NN):
         return log_lik
     # do i need to divide here ?
     def _KL_term(self):
-        return sum(neural_net.losses)
+        return sum(self.neural_net.losses)
 
     # def create_weights(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances):
     #
