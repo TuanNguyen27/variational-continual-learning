@@ -60,9 +60,9 @@ np.random.seed(1)
 
 coreset_size = 0
 data_gen = PermutedMnistGenerator(num_tasks)
-vcl_result = vcl.run_vcl(hidden_size, no_epochs, data_gen, 
+vcl_result = vcl.run_vcl(hidden_size, no_epochs, data_gen,
     coreset.rand_from_batch, coreset_size, batch_size, single_head)
-print vcl_result
+print(vcl_result)
 
 # Run random coreset VCL
 tf.reset_default_graph()
@@ -71,9 +71,9 @@ np.random.seed(1)
 
 coreset_size = 200
 data_gen = PermutedMnistGenerator(num_tasks)
-rand_vcl_result = vcl.run_vcl(hidden_size, no_epochs, data_gen, 
+rand_vcl_result = vcl.run_vcl(hidden_size, no_epochs, data_gen,
     coreset.rand_from_batch, coreset_size, batch_size, single_head)
-print rand_vcl_result
+print(rand_vcl_result)
 
 # Run k-center coreset VCL
 tf.reset_default_graph()
@@ -81,9 +81,9 @@ tf.set_random_seed(12)
 np.random.seed(1)
 
 data_gen = PermutedMnistGenerator(num_tasks)
-kcen_vcl_result = vcl.run_vcl(hidden_size, no_epochs, data_gen, 
+kcen_vcl_result = vcl.run_vcl(hidden_size, no_epochs, data_gen,
     coreset.k_center, coreset_size, batch_size, single_head)
-print kcen_vcl_result
+print(kcen_vcl_result)
 
 # Plot average accuracy
 vcl_avg = np.nanmean(vcl_result, 1)
