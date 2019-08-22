@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import gzip
-import cPickle
+import pickle
 import sys
 sys.path.extend(['alg/'])
 import vcl
