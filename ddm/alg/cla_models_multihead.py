@@ -473,6 +473,7 @@ class CVI_NN(Cla_NN):
                                         activation=tf.nn.relu),
         tf.keras.layers.Flatten(),
         tfp.layers.DenseFlipout(84, activation=tf.nn.relu),
+        # how to make this multi-head ?
         tfp.layers.DenseFlipout(10)
         ])
 
@@ -497,9 +498,9 @@ class CVI_NN(Cla_NN):
         targets = tf.tile(tf.expand_dims(targets, 0), [self.no_train_samples, 1, 1])
         log_lik = - tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=targets))
         return log_lik
-
+    # do i need to divide here ?
     def _KL_term(self):
-        return sum(neural_net.losses) / self.no_train_samples
+        return sum(neural_net.losses)
 
     # def create_weights(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances):
     #
