@@ -2,8 +2,6 @@ import tensorflow as tf
 import numpy as np
 from copy import deepcopy
 import tensorflow_probability as tfp
-tfd = tfp.distributions
-
 
 np.random.seed(0)
 tf.set_random_seed(0)
