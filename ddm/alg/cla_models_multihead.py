@@ -45,7 +45,7 @@ def _create_weights_mf(in_dim, hidden_size, out_dim, init_weights=None, init_var
 class Cla_NN(object):
     def __init__(self, input_size, hidden_size, output_size, training_size):
         # input and output placeholders
-        self.x = tf.placeholder(tf.float32, [None, input_size])
+        self.x = tf.placeholder(tf.float32, [None, input_size, input_size])
         self.y = tf.placeholder(tf.float32, [None, output_size])
         self.task_idx = tf.placeholder(tf.int32)
 
