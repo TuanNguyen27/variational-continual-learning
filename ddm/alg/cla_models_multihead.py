@@ -454,28 +454,28 @@ class CVI_NN(Cla_NN):
 
         super(CVI_NN, self).__init__(input_size, hidden_size, output_size, training_size)
         self.neural_net = tf.keras.Sequential([
-        tfp.layers.Convolution2DFlipout(6,
+        tfp.layers.Convolution2DReparameterization(6,
+                                                   kernel_size=5,
+                                                   padding='SAME',
+                                                   activation=tf.nn.relu),
+        tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
+                                     strides=[2, 2],
+                                     padding="SAME"),
+        tfp.layers.Convolution2DReparameterization(16,
                                         kernel_size=5,
                                         padding="SAME",
                                         activation=tf.nn.relu),
         tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
                                      strides=[2, 2],
                                      padding="SAME"),
-        tfp.layers.Convolution2DFlipout(16,
-                                        kernel_size=5,
-                                        padding="SAME",
-                                        activation=tf.nn.relu),
-        tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
-                                     strides=[2, 2],
-                                     padding="SAME"),
-        tfp.layers.Convolution2DFlipout(120,
+        tfp.layers.Convolution2DReparameterization(120,
                                         kernel_size=5,
                                         padding="SAME",
                                         activation=tf.nn.relu),
         tf.keras.layers.Flatten(),
-        tfp.layers.DenseFlipout(84, activation=tf.nn.relu),
+        tfp.layers.DenseReparameterization(84, activation=tf.nn.relu),
         # how to make this multi-head ?
-        tfp.layers.DenseFlipout(10)
+        tfp.layers.DenseReparameterization(10),
         ])
 
         self.no_layers = len(self.neural_net.layers)
