@@ -50,14 +50,14 @@ class Cla_NN(object):
         self.task_idx = tf.placeholder(tf.int32)
 
     def assign_optimizer(self, learning_rate=0.001):
-        self.train_step = tf.train.AdamOptimizer(learning_rate).minimize(self.cost)
+        self.train_step = tf.compat.v1.train.AdamOptimizer(learning_rate).minimize(self.cost)
 
     def assign_session(self):
         # Initializing the variables
-        init = tf.global_variables_initializer()
+        init = tf.compat.v1.global_variables_initializer()
 
         # launch a session
-        self.sess = tf.Session()
+        self.sess = tf.compat.v1.Session()
         self.sess.run(init)
 
     def train(self, x_train, y_train, task_idx, no_epochs=1000, batch_size=100, display_epoch=5):
