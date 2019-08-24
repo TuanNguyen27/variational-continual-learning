@@ -496,7 +496,6 @@ class CVI_NN(Cla_NN):
 
     def _logpred(self, inputs, targets, task_idx):
         pred = self._prediction(inputs, task_idx, self.no_train_samples)
-        targets = tf.tile(tf.expand_dims(targets, 0), [self.no_train_samples, 1, 1])
         log_lik = - tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=targets))
         return log_lik
     # do i need to divide here ?
