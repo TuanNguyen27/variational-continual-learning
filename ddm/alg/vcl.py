@@ -23,7 +23,7 @@ def run_vcl(hidden_size, no_epochs, data_gen, coreset_method, coreset_size=0, ba
         if task_id == 0:
             ml_model = CVI_NN(in_dim, hidden_size, out_dim, x_train.shape[0])
             ml_model.train(x_train, y_train, task_id, no_epochs, bsize)
-            mf_weights = ml_model.get_weights()
+            mf_weights = ml_model.get_weights()[0]
             mf_variances = None
             ml_model.close_session()
 
