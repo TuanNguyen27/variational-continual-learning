@@ -543,6 +543,7 @@ class CVI_NN(Cla_NN):
         qmeans = []
         qstds = []
         for i, layer in enumerate(self.neural_net.layers):
+            print(layer)
             try:
                 q = layer.kernel_posterior
             except AttributeError:
