@@ -484,18 +484,12 @@ class CVI_NN(Cla_NN):
             new_priors_kernel = []
             new_priors_bias = []
             for i in range(len(prev_means)):
-                new_priors_kernel.append(
-                    tfpl.DistributionLambda(
-                        make_distribution_fn=lambda t: tfd.Normal(loc=prev_means[i][0], scale=prev_log_variances[i][0]),
-                        convert_to_tensor_fn=lambda s: s.sample(no_train_samples)
-                    )
-                )
-                new_priors_bias.append(
-                    tfpl.DistributionLambda(
-                        make_distribution_fn=lambda t: tfd.Normal(loc=prev_means[i][1], scale=prev_log_variances[i][1]),
-                        convert_to_tensor_fn=lambda s: s.sample(no_train_samples)
-                    )
-                )
+                dist_kernel_i = tfd.Normal(loc=prev_means[i][0], scale=prev_log_variances[i][0])
+                dist_bias_i = tfd.Normal(loc=prev_means[i][1], scale=prev_log_variances[i][1])
+                batch_ndims_kernel = tf.size(input=dist_kernel_i.batch_shape_tensor())
+                batch_ndims_bias = tf.size(input=dist_bias_i.batch_shape_tensor())
+                new_priors_kernel.append(tfd.Independent(dist_kernel_i, reinterpreted_batch_ndims=batch_ndims_kernel))
+                new_priors_bias.append(tfd.Independent(dist_bias_i, reinterpreted_batch_ndims=batch_ndims_bias))
             self.neural_net = tf.keras.Sequential([
             tfp.layers.Convolution2DReparameterization(6,
                                                        kernel_size=5,
