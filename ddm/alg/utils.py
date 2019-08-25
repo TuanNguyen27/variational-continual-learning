@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
-from cla_models_multihead import MFVI_NN
+from cla_models_multihead import MFVI_NN, CVI_NN
+import pdb
 
 def merge_coresets(x_coresets, y_coresets):
     merged_x, merged_y = x_coresets[0], y_coresets[0]
@@ -41,11 +42,14 @@ def get_scores(model, x_testsets, y_testsets, x_coresets, y_coresets, hidden_siz
         print(pred.shape)
         pred_mean = np.mean(pred, axis=0)
         print(pred_mean.shape)
-        print("the right shape?", y_test.shape)
+        print("the right shape?")
+        print(y_test.shape)
+        print("#####")
         #pred_y = np.argmax(pred_mean, axis=1)
         pred_y = np.argmax(pred_mean)
         y = np.argmax(y_test, axis=1)
         print("right shape after", y.shape)
+        pdb.set_trace()
         cur_acc = len(np.where((pred_y - y) == 0)[0]) * 1.0 / y.shape[0]
         acc.append(cur_acc)
 
