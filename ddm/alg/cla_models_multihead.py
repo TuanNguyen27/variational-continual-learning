@@ -514,7 +514,7 @@ class CVI_NN(Cla_NN):
             tfp.layers.DenseReparameterization(10, kernel_prior_fn = new_priors[4])
             ])
 
-        self.weights = self.create_weights()
+        self.weights = self._create_weights()
         self.no_layers = len(self.neural_net.layers)
         print(self.no_layers)
         self.no_train_samples = no_train_samples
@@ -540,7 +540,7 @@ class CVI_NN(Cla_NN):
     def _KL_term(self):
         return sum(self.neural_net.losses)
 
-    def create_weights(self):
+    def _create_weights(self):
         qmeans = []
         qstds = []
         for i, layer in enumerate(self.neural_net.layers):
