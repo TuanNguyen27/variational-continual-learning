@@ -3,6 +3,7 @@ import numpy as np
 from copy import deepcopy
 import tensorflow_probability as tfp
 from tensorflow_probability import distributions as tfd
+from tensorflow_probability import layers as tfpl
 
 np.random.seed(0)
 tf.compat.v1.set_random_seed(0)
@@ -480,15 +481,27 @@ class CVI_NN(Cla_NN):
             tfp.layers.DenseReparameterization(10)
             ])
         else:
-            new_priors = []
+            new_priors_kernel = []
+            new_priors_bias = []
             for i in range(len(prev_means)):
-                new_priors.append(tfd.Normal(loc=prev_means[i],
-                                             scale=prev_log_variances[i]))
+                new_priors_kernel.append(
+                    tfpl.DistributionLambda(
+                        make_distribution_fn=lambda t: tfd.Normal(loc=prev_means[i][0], scale=prev_log_variances[i][0]),
+                        convert_to_tensor_fn=lambda s: s.sample(no_train_samples)
+                    )
+                )
+                new_priors_bias.append(
+                    tfpl.DistributionLambda(
+                        make_distribution_fn=lambda t: tfd.Normal(loc=prev_means[i][1], scale=prev_log_variances[i][1]),
+                        convert_to_tensor_fn=lambda s: s.sample(no_train_samples)
+                    )
+                )
             self.neural_net = tf.keras.Sequential([
             tfp.layers.Convolution2DReparameterization(6,
                                                        kernel_size=5,
                                                        padding='SAME',
-                                                       kernel_prior_fn = new_priors[0],
+                                                       kernel_prior_fn = new_priors_kernel[0],
+                                                       bias_prior_fn = new_priors_bias[0],
                                                        activation=tf.nn.relu),
             tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
                                          strides=[2, 2],
@@ -496,7 +509,8 @@ class CVI_NN(Cla_NN):
             tfp.layers.Convolution2DReparameterization(16,
                                             kernel_size=5,
                                             padding="SAME",
-                                            kernel_prior_fn = new_priors[1],
+                                            kernel_prior_fn = new_priors_kernel[1],
+                                            bias_prior_fn = new_priors_bias[1],
                                             activation=tf.nn.relu),
             tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
                                          strides=[2, 2],
@@ -504,7 +518,8 @@ class CVI_NN(Cla_NN):
             tfp.layers.Convolution2DReparameterization(120,
                                             kernel_size=5,
                                             padding="SAME",
-                                            kernel_prior_fn = new_priors[2],
+                                            kernel_prior_fn = new_priors_kernel[2],
+                                            bias_prior_fn = new_priors_bias[2],
                                             activation=tf.nn.relu),
             tf.keras.layers.Flatten(),
             tfp.layers.DenseReparameterization(84,
@@ -544,15 +559,14 @@ class CVI_NN(Cla_NN):
         qstds = []
         for i, layer in enumerate(self.neural_net.layers):
             try:
-                q = layer.kernel_posterior
-                print(q.mean())
-                print(q.stddev())
+                kernel_mean = layer.kernel_posterior.mean()
+                kernel_std = layer.kernel_posterior.stddev()
+                bias_mean = layer.bias_posterior.mean()
+                bias_std = layer.bias_posterior.stddev()
             except AttributeError:
                 continue
-            qmeans.append(q.mean())
-            qstds.append(q.stddev())
-            print(qmeans)
-            print(qstds)
+            qmeans.append((kernel_mean,bias_mean))
+            qstds.append((kernel_std, bias_std))
         return [qmeans, qstds]
 
     # def create_prior(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances, prior_mean, prior_var):
