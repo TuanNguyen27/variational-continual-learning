@@ -564,8 +564,11 @@ class CVI_NN(Cla_NN):
 
     def custom_mean_field_normal_fn(self, loc, scale):
         def _fn(dtype, shape, name, trainable, add_variable_fn):
+            print(loc)
+            print(scale)
             dist = tfd.Normal(loc=loc, scale=scale)
             batch_ndims = tf.size(input=dist.batch_shape_tensor())
+            print(batch_ndims)
             return tfd.Independent(dist, reinterpreted_batch_ndims=batch_ndims)
         return _fn
 
