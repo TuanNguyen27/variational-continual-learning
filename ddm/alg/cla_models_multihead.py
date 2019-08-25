@@ -4,6 +4,7 @@ from copy import deepcopy
 import tensorflow_probability as tfp
 from tensorflow_probability import distributions as tfd
 from tensorflow_probability import layers as tfpl
+import pdb
 
 np.random.seed(0)
 tf.compat.v1.set_random_seed(0)
@@ -521,6 +522,8 @@ class CVI_NN(Cla_NN):
                                                kernel_prior_fn = new_priors_kernel[4],
                                                bias_prior_fn = new_priors_bias[4])
             ])
+            pdb.set_trace()
+
 
         self.weights = self.create_weights()
         self.no_layers = len(self.neural_net.layers)
