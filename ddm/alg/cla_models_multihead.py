@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 from copy import deepcopy
 import tensorflow_probability as tfp
+from tensorflow_probability import distributions as tfd
 
 np.random.seed(0)
 tf.set_random_seed(0)
@@ -453,32 +454,69 @@ class CVI_NN(Cla_NN):
         prior_mean=0, prior_var=1):
 
         super(CVI_NN, self).__init__(input_size, hidden_size, output_size, training_size)
-        self.neural_net = tf.keras.Sequential([
-        tfp.layers.Convolution2DReparameterization(6,
-                                                   kernel_size=5,
-                                                   padding='SAME',
-                                                   activation=tf.nn.relu),
-        tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
-                                     strides=[2, 2],
-                                     padding="SAME"),
-        tfp.layers.Convolution2DReparameterization(16,
-                                        kernel_size=5,
-                                        padding="SAME",
-                                        activation=tf.nn.relu),
-        tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
-                                     strides=[2, 2],
-                                     padding="SAME"),
-        tfp.layers.Convolution2DReparameterization(120,
-                                        kernel_size=5,
-                                        padding="SAME",
-                                        activation=tf.nn.relu),
-        tf.keras.layers.Flatten(),
-        tfp.layers.DenseReparameterization(84, activation=tf.nn.relu),
-        # how to make this multi-head ?
-        tfp.layers.DenseReparameterization(10),
-        ])
+        if not (prev_means and prev_log_variances):
+            self.neural_net = tf.keras.Sequential([
+            tfp.layers.Convolution2DReparameterization(6,
+                                                       kernel_size=5,
+                                                       padding='SAME',
+                                                       activation=tf.nn.relu),
+            tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
+                                         strides=[2, 2],
+                                         padding="SAME"),
+            tfp.layers.Convolution2DReparameterization(16,
+                                            kernel_size=5,
+                                            padding="SAME",
+                                            activation=tf.nn.relu),
+            tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
+                                         strides=[2, 2],
+                                         padding="SAME"),
+            tfp.layers.Convolution2DReparameterization(120,
+                                            kernel_size=5,
+                                            padding="SAME",
+                                            activation=tf.nn.relu),
+            tf.keras.layers.Flatten(),
+            tfp.layers.DenseReparameterization(84, activation=tf.nn.relu),
+            # how to make this multi-head ?
+            tfp.layers.DenseReparameterization(10)
+            ])
+        else:
+            new_priors = []
+            for i in range(self.no_layers):
+                new_priors.append(tfd.Normal(loc=prev_means[i],
+                                             covariance_matrix=prev_log_variances[i]))
+            self.neural_net = tf.keras.Sequential([
+            tfp.layers.Convolution2DReparameterization(6,
+                                                       kernel_size=5,
+                                                       padding='SAME',
+                                                       kernel_prior_fn = new_priors[0],
+                                                       activation=tf.nn.relu),
+            tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
+                                         strides=[2, 2],
+                                         padding="SAME"),
+            tfp.layers.Convolution2DReparameterization(16,
+                                            kernel_size=5,
+                                            padding="SAME",
+                                            kernel_prior_fn = new_priors[1],
+                                            activation=tf.nn.relu),
+            tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
+                                         strides=[2, 2],
+                                         padding="SAME"),
+            tfp.layers.Convolution2DReparameterization(120,
+                                            kernel_size=5,
+                                            padding="SAME",
+                                            kernel_prior_fn = new_priors[2]
+                                            activation=tf.nn.relu),
+            tf.keras.layers.Flatten(),
+            tfp.layers.DenseReparameterization(84,
+                                               kernel_prior_fn = new_priors[3],
+                                               activation=tf.nn.relu),
+            # how to make this multi-head ?
+            tfp.layers.DenseReparameterization(10, kernel_prior_fn = new_priors[4])
+            ])
 
+        self.weights = create_weights(prev_means, prev_log_variances)
         self.no_layers = len(self.neural_net.layers)
+        print(self.no_layers)
         self.no_train_samples = no_train_samples
         self.no_pred_samples = no_pred_samples
         self.pred = self._prediction(self.x, self.task_idx, self.no_pred_samples)
@@ -498,14 +536,24 @@ class CVI_NN(Cla_NN):
         pred = self._prediction(inputs, task_idx, self.no_train_samples)
         log_lik = - tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=targets))
         return log_lik
-    # do i need to divide here ?
+
     def _KL_term(self):
         return sum(self.neural_net.losses)
 
-    # def create_weights(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances):
-    #
-    #     return [W_m, b_m, W_last_m, b_last_m], [W_v, b_v, W_last_v, b_last_v], hidden_size
-    #
+    def create_weights(self):
+        qmeans = []
+        qstds = []
+        for i, layer in enumerate(self.neural_net.layers):
+            try:
+                q = layer.kernel_posterior
+            except AttributeError:
+                continue
+            print(q.mean())
+            print(q.stddev())
+            qmeans.append(q.mean())
+            qstds.append(q.stddev())
+        return qmeans, qstds
+
     # def create_prior(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances, prior_mean, prior_var):
     #
     #     return [W_m, b_m, W_last_m, b_last_m], [W_v, b_v, W_last_v, b_last_v]
