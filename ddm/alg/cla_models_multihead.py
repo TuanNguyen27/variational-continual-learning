@@ -484,12 +484,8 @@ class CVI_NN(Cla_NN):
             new_priors_kernel = []
             new_priors_bias = []
             for i in range(len(prev_means)):
-                dist_kernel_i = tfd.Normal(loc=prev_means[i][0], scale=prev_log_variances[i][0])
-                dist_bias_i = tfd.Normal(loc=prev_means[i][1], scale=prev_log_variances[i][1])
-                batch_ndims_kernel = tf.size(input=dist_kernel_i.batch_shape_tensor())
-                batch_ndims_bias = tf.size(input=dist_bias_i.batch_shape_tensor())
-                new_priors_kernel.append(tfd.Independent(dist_kernel_i, reinterpreted_batch_ndims=batch_ndims_kernel))
-                new_priors_bias.append(tfd.Independent(dist_bias_i, reinterpreted_batch_ndims=batch_ndims_bias))
+                new_priors_kernel.append(custom_mean_field_normal_fn(loc=prev_means[i][0], scale=prev_log_variances[i][0]))
+                new_priors_bias.append(custom_mean_field_normal_fn(loc=prev_means[i][1], scale=prev_log_variances[i][1]))
             self.neural_net = tf.keras.Sequential([
             tfp.layers.Convolution2DReparameterization(6,
                                                        kernel_size=5,
@@ -565,6 +561,13 @@ class CVI_NN(Cla_NN):
             qmeans.append((kernel_mean,bias_mean))
             qstds.append((kernel_std, bias_std))
         return [qmeans, qstds]
+
+    def custom_mean_field_normal_fn(loc, scale):
+        def _fn(dtype, shape, name, trainable, add_variable_fn):
+            dist = tfd.Normal(loc=loc, scale=scale)
+            batch_ndims = tf.size(input=dist.batch_shape_tensor())
+            return tfd.Independent(dist, reinterpreted_batch_ndims=batch_ndims)
+        return _fn
 
     # def create_prior(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances, prior_mean, prior_var):
     #
