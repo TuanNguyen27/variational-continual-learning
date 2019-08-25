@@ -523,10 +523,13 @@ class CVI_NN(Cla_NN):
                                             activation=tf.nn.relu),
             tf.keras.layers.Flatten(),
             tfp.layers.DenseReparameterization(84,
-                                               kernel_prior_fn = new_priors[3],
+                                               kernel_prior_fn = new_priors_kernel[3],
+                                               bias_prior_fn = new_priors_bias[3],
                                                activation=tf.nn.relu),
             # how to make this multi-head ?
-            tfp.layers.DenseReparameterization(10, kernel_prior_fn = new_priors[4])
+            tfp.layers.DenseReparameterization(10,
+                                               kernel_prior_fn = new_priors_kernel[4],
+                                               bias_prior_fn = new_priors_bias[4])
             ])
 
         self.weights = self.create_weights()
