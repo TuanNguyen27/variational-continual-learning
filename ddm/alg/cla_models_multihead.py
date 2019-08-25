@@ -48,7 +48,7 @@ class Cla_NN(object):
         # input and output placeholders
         self.x = tf.compat.v1.placeholder(tf.float32, [None, input_size, input_size, 1])
         self.y = tf.compat.v1.placeholder(tf.float32, [None, output_size])
-        self.task_idx = tf.placeholder(tf.int32)
+        self.task_idx = tf.compat.v1.placeholder(tf.int32)
 
     def assign_optimizer(self, learning_rate=0.001):
         self.train_step = tf.compat.v1.train.AdamOptimizer(learning_rate).minimize(self.cost)
@@ -516,11 +516,10 @@ class CVI_NN(Cla_NN):
 
         self.weights = self.create_weights()
         self.no_layers = len(self.neural_net.layers)
-        print(self.no_layers)
         self.no_train_samples = no_train_samples
         self.no_pred_samples = no_pred_samples
         self.pred = self._prediction(self.x, self.task_idx, self.no_pred_samples)
-        self.cost = tf.div(self._KL_term(), training_size) - self._logpred(self.x, self.y, self.task_idx)
+        self.cost = tf.math.divide(self._KL_term(), training_size) - self._logpred(self.x, self.y, self.task_idx)
 
         self.assign_optimizer(learning_rate)
         self.assign_session()
@@ -552,7 +551,7 @@ class CVI_NN(Cla_NN):
             print(q.stddev())
             qmeans.append(q.mean())
             qstds.append(q.stddev())
-        return qmeans, qstds
+        return [qmeans, qstds]
 
     # def create_prior(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances, prior_mean, prior_var):
     #
