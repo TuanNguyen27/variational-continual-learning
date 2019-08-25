@@ -481,7 +481,7 @@ class CVI_NN(Cla_NN):
             ])
         else:
             new_priors = []
-            for i in range(self.no_layers):
+            for i in range(len(prev_means)):
                 new_priors.append(tfd.Normal(loc=prev_means[i],
                                              covariance_matrix=prev_log_variances[i]))
             self.neural_net = tf.keras.Sequential([
