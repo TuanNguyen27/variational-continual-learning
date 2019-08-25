@@ -41,10 +41,11 @@ def get_scores(model, x_testsets, y_testsets, x_coresets, y_coresets, hidden_siz
         print(pred.shape)
         pred_mean = np.mean(pred, axis=0)
         print(pred_mean.shape)
-        print(y_test.shape)
+        print("the right shape?", y_test.shape)
         #pred_y = np.argmax(pred_mean, axis=1)
         pred_y = np.argmax(pred_mean)
         y = np.argmax(y_test, axis=1)
+        print("right shape after", y.shape)
         cur_acc = len(np.where((pred_y - y) == 0)[0]) * 1.0 / y.shape[0]
         acc.append(cur_acc)
 
