@@ -543,15 +543,16 @@ class CVI_NN(Cla_NN):
         qmeans = []
         qstds = []
         for i, layer in enumerate(self.neural_net.layers):
-            print(layer)
             try:
                 q = layer.kernel_posterior
+                print(q.mean())
+                print(q.stddev())
             except AttributeError:
                 continue
-            print(q.mean())
-            print(q.stddev())
             qmeans.append(q.mean())
             qstds.append(q.stddev())
+            print(qmeans)
+            print(qstds)
         return [qmeans, qstds]
 
     # def create_prior(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances, prior_mean, prior_var):
