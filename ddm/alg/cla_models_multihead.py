@@ -514,7 +514,7 @@ class CVI_NN(Cla_NN):
             tfp.layers.DenseReparameterization(10, kernel_prior_fn = new_priors[4])
             ])
 
-        self.weights = self.create_weights(prev_means, prev_log_variances)
+        self.weights = self.create_weights()
         self.no_layers = len(self.neural_net.layers)
         print(self.no_layers)
         self.no_train_samples = no_train_samples
