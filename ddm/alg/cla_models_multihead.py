@@ -5,7 +5,7 @@ import tensorflow_probability as tfp
 from tensorflow_probability import distributions as tfd
 
 np.random.seed(0)
-tf.set_random_seed(0)
+tf.compat.v1.set_random_seed(0)
 
 # variable initialization functions
 def weight_variable(shape, init_weights=None):
@@ -46,8 +46,8 @@ def _create_weights_mf(in_dim, hidden_size, out_dim, init_weights=None, init_var
 class Cla_NN(object):
     def __init__(self, input_size, hidden_size, output_size, training_size):
         # input and output placeholders
-        self.x = tf.placeholder(tf.float32, [None, input_size, input_size, 1])
-        self.y = tf.placeholder(tf.float32, [None, output_size])
+        self.x = tf.compat.v1.placeholder(tf.float32, [None, input_size, input_size, 1])
+        self.y = tf.compat.v1.placeholder(tf.float32, [None, output_size])
         self.task_idx = tf.placeholder(tf.int32)
 
     def assign_optimizer(self, learning_rate=0.001):
@@ -514,7 +514,7 @@ class CVI_NN(Cla_NN):
             tfp.layers.DenseReparameterization(10, kernel_prior_fn = new_priors[4])
             ])
 
-        self.weights = create_weights(prev_means, prev_log_variances)
+        self.weights = self.create_weights(prev_means, prev_log_variances)
         self.no_layers = len(self.neural_net.layers)
         print(self.no_layers)
         self.no_train_samples = no_train_samples
