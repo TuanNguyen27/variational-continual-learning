@@ -504,7 +504,7 @@ class CVI_NN(Cla_NN):
             tfp.layers.Convolution2DReparameterization(120,
                                             kernel_size=5,
                                             padding="SAME",
-                                            kernel_prior_fn = new_priors[2]
+                                            kernel_prior_fn = new_priors[2],
                                             activation=tf.nn.relu),
             tf.keras.layers.Flatten(),
             tfp.layers.DenseReparameterization(84,
