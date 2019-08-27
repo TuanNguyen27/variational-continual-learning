@@ -524,8 +524,6 @@ class CVI_NN(Cla_NN):
             ])
             pdb.set_trace()
 
-
-        self.weights = self.create_weights()
         self.no_layers = len(self.neural_net.layers)
         self.no_train_samples = no_train_samples
         self.no_pred_samples = no_pred_samples
@@ -559,6 +557,7 @@ class CVI_NN(Cla_NN):
                 kernel_std = layer.kernel_posterior.stddev()
                 bias_mean = layer.bias_posterior.mean()
                 bias_std = layer.bias_posterior.stddev()
+                print(kernel_std, kernel_mean, bias_std, bias_mean)
             except AttributeError:
                 continue
             qmeans.append((kernel_mean,bias_mean))
