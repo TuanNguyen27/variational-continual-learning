@@ -465,8 +465,8 @@ class CVI_NN(Cla_NN):
             tfp.layers.Convolution2DReparameterization(6,
                                                        kernel_size=5,
                                                        padding='SAME',
-                                                       bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn,
-                                                       bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn,
+                                                       bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn(),
+                                                       bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn(),
                                                        activation=tf.nn.relu),
             tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
                                          strides=[2, 2],
@@ -474,8 +474,8 @@ class CVI_NN(Cla_NN):
             tfp.layers.Convolution2DReparameterization(16,
                                                         kernel_size=5,
                                                         padding="SAME",
-                                                        bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn,
-                                                        bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn,
+                                                        bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn(),
+                                                        bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn(),
                                                         activation=tf.nn.relu),
             tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
                                          strides=[2, 2],
@@ -483,18 +483,18 @@ class CVI_NN(Cla_NN):
             tfp.layers.Convolution2DReparameterization(120,
                                                         kernel_size=5,
                                                         padding="SAME",
-                                                        bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn,
-                                                        bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn,
+                                                        bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn(),
+                                                        bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn(),
                                                         activation=tf.nn.relu),
             tf.keras.layers.Flatten(),
             tfp.layers.DenseReparameterization(84,
-                                                bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn,
-                                                bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn,
+                                                bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn(),
+                                                bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn(),
                                                 activation=tf.nn.relu),
             # how to make this multi-head ?
             tfp.layers.DenseReparameterization(10,
-                                                bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn,
-                                                bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn)
+                                                bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn(),
+                                                bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn())
             ])
         else:
             new_priors_kernel = []
