@@ -539,7 +539,7 @@ class CVI_NN(Cla_NN):
                                                bias_prior_fn = new_priors_bias[4])
             ])
             #pdb.set_trace()
-
+        self.weights = self.create_weights()
         self.no_layers = len(self.neural_net.layers)
         self.no_train_samples = no_train_samples
         self.no_pred_samples = no_pred_samples
