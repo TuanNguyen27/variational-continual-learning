@@ -461,29 +461,41 @@ class CVI_NN(Cla_NN):
             tfp.layers.Convolution2DReparameterization(6,
                                                        kernel_size=5,
                                                        padding='SAME',
+                                                       bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn,
+                                                       bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn,
                                                        activation=tf.nn.relu),
             tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
                                          strides=[2, 2],
                                          padding="SAME"),
             tfp.layers.Convolution2DReparameterization(16,
-                                            kernel_size=5,
-                                            padding="SAME",
-                                            activation=tf.nn.relu),
+                                                        kernel_size=5,
+                                                        padding="SAME",
+                                                        bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn,
+                                                        bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn,
+                                                        activation=tf.nn.relu),
             tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
                                          strides=[2, 2],
                                          padding="SAME"),
             tfp.layers.Convolution2DReparameterization(120,
-                                            kernel_size=5,
-                                            padding="SAME",
-                                            activation=tf.nn.relu),
+                                                        kernel_size=5,
+                                                        padding="SAME",
+                                                        bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn,
+                                                        bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn,
+                                                        activation=tf.nn.relu),
             tf.keras.layers.Flatten(),
-            tfp.layers.DenseReparameterization(84, activation=tf.nn.relu),
+            tfp.layers.DenseReparameterization(84,
+                                                bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn,
+                                                bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn,
+                                                activation=tf.nn.relu),
             # how to make this multi-head ?
-            tfp.layers.DenseReparameterization(10)
+            tfp.layers.DenseReparameterization(10,
+                                                bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn,
+                                                bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn)
             ])
         else:
             new_priors_kernel = []
             new_priors_bias = []
+            print(prev_means, prev_log_variances)
             for i in range(len(prev_means)):
                 new_priors_kernel.append(self.custom_mean_field_normal_fn(loc=prev_means[i][0], scale=prev_log_variances[i][0]))
                 new_priors_bias.append(self.custom_mean_field_normal_fn(loc=prev_means[i][1], scale=prev_log_variances[i][1]))
@@ -522,7 +534,7 @@ class CVI_NN(Cla_NN):
                                                kernel_prior_fn = new_priors_kernel[4],
                                                bias_prior_fn = new_priors_bias[4])
             ])
-            pdb.set_trace()
+            #pdb.set_trace()
 
         self.no_layers = len(self.neural_net.layers)
         self.no_train_samples = no_train_samples
@@ -557,7 +569,6 @@ class CVI_NN(Cla_NN):
                 kernel_std = layer.kernel_posterior.stddev()
                 bias_mean = layer.bias_posterior.mean()
                 bias_std = layer.bias_posterior.stddev()
-                print(kernel_std, kernel_mean, bias_std, bias_mean)
             except AttributeError:
                 continue
             qmeans.append((kernel_mean,bias_mean))
@@ -566,11 +577,8 @@ class CVI_NN(Cla_NN):
 
     def custom_mean_field_normal_fn(self, loc, scale):
         def _fn(dtype, shape, name, trainable, add_variable_fn):
-            print(loc)
-            print(scale)
             dist = tfd.Normal(loc=loc, scale=scale)
             batch_ndims = tf.size(input=dist.batch_shape_tensor())
-            print(batch_ndims)
             return tfd.Independent(dist, reinterpreted_batch_ndims=batch_ndims)
         return _fn
 
