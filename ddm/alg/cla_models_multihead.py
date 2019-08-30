@@ -4,6 +4,8 @@ from copy import deepcopy
 import tensorflow_probability as tfp
 from tensorflow_probability import distributions as tfd
 from tensorflow_probability import layers as tfpl
+from tensorflow_probability.python.layers import util as tfp_layers_util
+
 import pdb
 
 np.random.seed(0)
@@ -86,9 +88,11 @@ class Cla_NN(object):
                 batch_x = cur_x_train[start_ind:end_ind, :]
                 batch_y = cur_y_train[start_ind:end_ind, :]
                 # Run optimization op (backprop) and cost op (to get loss value)
-                _, c = sess.run(
-                    [self.train_step, self.cost],
+                _, c, c1, c2, l = sess.run([self.train_step, self.cost, self.cost1, self.cost2, self.loss_list],
                     feed_dict={self.x: batch_x, self.y: batch_y, self.task_idx: task_idx})
+                if (i % 100) == 0:
+                    print(c, c1, c2, l)
+
                 # Compute average loss
                 avg_cost += c / total_batch
             # Display logs per epoch step
@@ -541,6 +545,7 @@ class CVI_NN(Cla_NN):
         self.no_pred_samples = no_pred_samples
         self.pred = self._prediction(self.x, self.task_idx, self.no_pred_samples)
         self.cost = tf.math.divide(self._KL_term(), training_size) - self._logpred(self.x, self.y, self.task_idx)
+        self.cost1, self.cost2 = tf.math.divide(self._KL_term(), training_size), - self._logpred(self.x, self.y, self.task_idx)
 
         self.assign_optimizer(learning_rate)
         self.assign_session()
@@ -558,6 +563,7 @@ class CVI_NN(Cla_NN):
         return log_lik
 
     def _KL_term(self):
+        self.loss_list = self.neural_net.losses
         return sum(self.neural_net.losses)
 
     def create_weights(self):

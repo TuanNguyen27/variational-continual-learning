@@ -39,7 +39,7 @@ def run_vcl(hidden_size, no_epochs, data_gen, coreset_method, coreset_size=0, ba
         # Incorporate coreset data and make prediction
         acc = utils.get_scores(mf_model, x_testsets, y_testsets, x_coresets, y_coresets, hidden_size, no_epochs, single_head, batch_size)
         all_acc = utils.concatenate_results(acc, all_acc)
-
+        print(acc)
         mf_model.close_session()
 
     return all_acc
