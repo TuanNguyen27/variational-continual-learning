@@ -9,8 +9,8 @@ def run_vcl(hidden_size, no_epochs, data_gen, coreset_method, coreset_size=0, ba
     x_testsets, y_testsets = [], []
 
     all_acc = np.array([])
-
-    for task_id in range(data_gen.max_iter):
+    
+    for task_id in list(range(data_gen.max_iter)):
         x_train, y_train, x_test, y_test = data_gen.next_task()
         x_testsets.append(x_test)
         y_testsets.append(y_test)
