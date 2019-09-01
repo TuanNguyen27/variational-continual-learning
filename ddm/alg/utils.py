@@ -66,7 +66,7 @@ def concatenate_results(score, all_score):
     return all_score
 
 def plot(filename, vcl, rand_vcl, kcen_vcl):
-    plt.rc('text', usetex=True)
+    #plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
 
     fig = plt.figure(figsize=(7,3))
