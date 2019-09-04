@@ -39,9 +39,7 @@ def run_vcl(hidden_size, no_epochs, data_gen, coreset_method, coreset_size=0, ba
         with sess.as_default():
             for weight in mf_weights:
                 print_op = tf.print(weight)
-                with tf.control_dependencies([print_op]):
-                    out = tf.add(tensor, tensor)
-                    sess.run(out)
+                sess.run(print_op)
         #import pdb; pdb.set_trace()
 
 
