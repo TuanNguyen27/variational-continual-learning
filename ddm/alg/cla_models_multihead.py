@@ -90,8 +90,8 @@ class Cla_NN(object):
                 # Run optimization op (backprop) and cost op (to get loss value)
                 _, c, c1, c2, l = sess.run([self.train_step, self.cost, self.cost1, self.cost2, self.loss_list],
                     feed_dict={self.x: batch_x, self.y: batch_y, self.task_idx: task_idx})
-                if (i % 100) == 0:
-                    print(c, c1, c2, l)
+                # if (i % 100) == 0:
+                #     print(c, c1, c2, l)
 
                 # Compute average loss
                 avg_cost += c / total_batch
