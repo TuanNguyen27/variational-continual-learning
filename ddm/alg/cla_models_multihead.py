@@ -461,6 +461,7 @@ class CVI_NN(Cla_NN):
 
         super(CVI_NN, self).__init__(input_size, hidden_size, output_size, training_size)
         if not (prev_means and prev_log_variances):
+            print("does it get here?")
             self.neural_net = tf.keras.Sequential([
             tfp.layers.Convolution2DReparameterization(6,
                                                        kernel_size=5,
@@ -497,6 +498,7 @@ class CVI_NN(Cla_NN):
                                                 bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn)
             ])
         else:
+            print("or here instead?")
             new_priors_kernel = []
             new_priors_bias = []
 
