@@ -500,6 +500,7 @@ class CVI_NN(Cla_NN):
             new_priors_kernel = []
             new_priors_bias = []
             print(prev_means, prev_log_variances)
+            print("Here?")
             for i in range(len(prev_means)):
                 new_priors_kernel.append(self.custom_mean_field_normal_fn(loc=prev_means[i][0], scale=prev_log_variances[i][0]))
                 new_priors_bias.append(self.custom_mean_field_normal_fn(loc=prev_means[i][1], scale=prev_log_variances[i][1]))
