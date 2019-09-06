@@ -37,8 +37,8 @@ def run_vcl(hidden_size, no_epochs, data_gen, coreset_method, coreset_size=0, ba
         mf_weights, mf_variances = mf_model.create_weights()
         sess = mf_model.sess
         if not (mf_weights and mf_variances):
-            mf_weights = sess.run(mf_weights)
-            mf_variances = sess.run(mf_variances)
+            mf_weights = [tensor_i.eval(sess) for tensor_i in mf_weights]
+            mf_variances = [tensor_i.eval(sess) for tensor_i in mf_variances]
         # with sess.as_default():
         #     for weight in mf_weights:
         #         print_op = tf.print(weight)
