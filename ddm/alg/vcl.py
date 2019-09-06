@@ -36,14 +36,10 @@ def run_vcl(hidden_size, no_epochs, data_gen, coreset_method, coreset_size=0, ba
         mf_model.train(x_train, y_train, head, no_epochs, bsize)
         mf_weights, mf_variances = mf_model.create_weights()
         sess = mf_model.sess
-
-        if not (mf_weights and mf_variances):
-            mf_weights = [sess.run(tensor_i) for tensor_i in mf_weights]
-            mf_variances = [sess.run(tensor_i) for tensor_i in mf_variances]
-        # with sess.as_default():
-        #     for weight in mf_weights:
-        #         print_op = tf.print(weight)
-        #         sess.run(print_op)
+        with sess.as_default():
+            if not (mf_weights and mf_variances):
+                mf_weights = sess.run(mf_weights)
+                mf_variances = sess.run(mf_variances)
         #import pdb; pdb.set_trace()
 
 
