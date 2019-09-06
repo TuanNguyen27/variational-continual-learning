@@ -38,6 +38,8 @@ def run_vcl(hidden_size, no_epochs, data_gen, coreset_method, coreset_size=0, ba
         sess = mf_model.sess
         with sess.as_default():
             if not (mf_weights and mf_variances):
+                print(sess.run(mf_weights))
+                print(sess.run(mf_variances))
                 mf_weights = sess.run(mf_weights)
                 mf_variances = sess.run(mf_variances)
         #import pdb; pdb.set_trace()
