@@ -499,8 +499,10 @@ class CVI_NN(Cla_NN):
             ])
         else:
             print("or here instead?")
-            mf_weights = self.sess.run(mf_weights)
-            mf_variances = self.sess.run(mf_variances)
+            temp_sess = tf.compat.v1.Session()
+            mf_weights = temp_sess.run(mf_weights)
+            mf_variances = temp_sess.run(mf_variances)
+            temp_sess.close_session()
             new_priors_kernel = []
             new_priors_bias = []
             new_posterior_bias = []
