@@ -499,6 +499,8 @@ class CVI_NN(Cla_NN):
             ])
         else:
             print("or here instead?")
+            mf_weights = self.sess.run(mf_weights)
+            mf_variances = self.sess.run(mf_variances)
             new_priors_kernel = []
             new_priors_bias = []
             new_posterior_bias = []

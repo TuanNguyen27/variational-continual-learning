@@ -35,13 +35,13 @@ def run_vcl(hidden_size, no_epochs, data_gen, coreset_method, coreset_size=0, ba
         mf_model = CVI_NN(in_dim, hidden_size, out_dim, x_train.shape[0], prev_means=mf_weights, prev_log_variances=mf_variances)
         mf_model.train(x_train, y_train, head, no_epochs, bsize)
         mf_weights, mf_variances = mf_model.create_weights()
-        sess = mf_model.sess
-        with sess.as_default():
-            if not (mf_weights and mf_variances):
-                print(sess.run(mf_weights))
-                print(sess.run(mf_variances))
-                mf_weights = sess.run(mf_weights)
-                mf_variances = sess.run(mf_variances)
+        # sess = mf_model.sess
+        # with sess.as_default():
+        #     if not (mf_weights and mf_variances):
+        #         print(sess.run(mf_weights))
+        #         print(sess.run(mf_variances))
+        #         mf_weights = sess.run(mf_weights)
+        #         mf_variances = sess.run(mf_variances)
         #import pdb; pdb.set_trace()
 
 
