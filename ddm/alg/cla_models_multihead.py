@@ -502,7 +502,6 @@ class CVI_NN(Cla_NN):
             temp_sess = tf.compat.v1.Session()
             prev_means = temp_sess.run(prev_means)
             prev_variances = temp_sess.run(prev_variances)
-            temp_sess.close_session()
             new_priors_kernel = []
             new_priors_bias = []
             new_posterior_bias = []
@@ -565,6 +564,8 @@ class CVI_NN(Cla_NN):
                                                kernel_prior_fn = new_priors_kernel[4],
                                                bias_prior_fn = new_priors_bias[4])
             ])
+            temp_sess.close_session()
+
         self.weights = self.create_weights()
         self.no_layers = len(self.neural_net.layers)
         self.no_train_samples = no_train_samples
