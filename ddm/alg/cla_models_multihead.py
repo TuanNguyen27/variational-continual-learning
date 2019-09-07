@@ -506,7 +506,7 @@ class CVI_NN(Cla_NN):
             new_priors_kernel = []
             new_priors_bias = []
             new_posterior_bias = []
-            new_posteror_kernel = []
+            new_posterior_kernel = []
 
             for i in range(len(prev_means)):
                 new_priors_kernel.append(self.custom_mean_field_normal_fn(loc=prev_means[i][0], scale=prev_log_variances[i][0]))
@@ -518,7 +518,7 @@ class CVI_NN(Cla_NN):
                 bias_posterior = tfp_layers_util.default_mean_field_normal_fn(loc_initializer = bias_loc_init, untransformed_scale_initializer = bias_scale_init)
                 kernel_posterior = tfp_layers_util.default_mean_field_normal_fn(loc_initializer = kernel_loc_init, untransformed_scale_initializer = kernel_scale_init)
                 new_posterior_bias.append(bias_posterior)
-                new_posteror_kernel.append(kernel_posterior)
+                new_posterior_kernel.append(kernel_posterior)
 
             self.neural_net = tf.keras.Sequential([
             tfp.layers.Convolution2DReparameterization(6,
