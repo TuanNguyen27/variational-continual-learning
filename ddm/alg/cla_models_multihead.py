@@ -501,8 +501,8 @@ class CVI_NN(Cla_NN):
             print("or here instead?")
             temp_sess = tf.compat.v1.Session()
             temp_sess.run(tf.compat.v1.global_variables_initializer())
-            print(temp_sess.run(prev_means))
-            print(temp_sess.run(prev_log_variances))
+            prev_means = temp_sess.run(prev_means)
+            prev_log_variances= temp_sess.run(prev_log_variances)
             new_priors_kernel = []
             new_priors_bias = []
             new_posterior_bias = []
