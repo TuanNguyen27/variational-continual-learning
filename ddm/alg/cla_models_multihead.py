@@ -500,7 +500,7 @@ class CVI_NN(Cla_NN):
         else:
             print("or here instead?")
             temp_sess = tf.compat.v1.Session()
-            #temp_sess.run(tf.compat.v1.global_variables_initializer())
+            temp_sess.run(tf.compat.v1.global_variables_initializer())
             prev_means = temp_sess.run(prev_means)
             prev_log_variances= temp_sess.run(prev_log_variances)
             new_priors_kernel = []
