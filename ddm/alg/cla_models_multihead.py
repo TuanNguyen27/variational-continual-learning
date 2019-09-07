@@ -500,7 +500,7 @@ class CVI_NN(Cla_NN):
         else:
             print("or here instead?")
             temp_sess = tf.compat.v1.Session()
-            temp_sess.run(tf.compat.v1.global_variables_initializer())
+            #temp_sess.run(tf.compat.v1.global_variables_initializer())
             prev_means = temp_sess.run(prev_means)
             prev_log_variances= temp_sess.run(prev_log_variances)
             new_priors_kernel = []
@@ -565,7 +565,7 @@ class CVI_NN(Cla_NN):
                                                kernel_prior_fn = new_priors_kernel[4],
                                                bias_prior_fn = new_priors_bias[4])
             ])
-            temp_sess.close_session()
+            temp_sess.close()
 
         self.weights = self.create_weights()
         self.no_layers = len(self.neural_net.layers)
