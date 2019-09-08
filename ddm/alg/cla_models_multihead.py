@@ -622,27 +622,25 @@ class CVI_NN(Cla_NN):
         return _fn
 
 
-    def custom_loc_scale_fn(self, loc_initializer, scale_initializer):
-        def _fn(dtype, shape, name, trainable, add_variable_fn):
-            loc = add_variable_fn(
-                name=name + '_loc',
-                shape=shape,
-                initializer=loc_initializer,
-                regularizer=None,
-                constraint=None,
-                dtype=dtype,
-                trainable=trainable)
+    def custom_loc_scale_fn(self, loc_initializer, scale_initializer, dtype, shape, name, trainable, add_variable_fn):
+        loc = add_variable_fn(
+            name=name + '_loc',
+            shape=shape,
+            initializer=loc_initializer,
+            regularizer=None,
+            constraint=None,
+            dtype=dtype,
+            trainable=trainable)
 
-            scale = add_variable_fn(
-                name=name + '_untransformed_scale',
-                shape=shape,
-                initializer=scale_initializer,
-                regularizer=None,
-                constraint=None,
-                dtype=dtype,
-                trainable=trainable)
-            return loc, scale
-        return _fn
+        scale = add_variable_fn(
+            name=name + '_untransformed_scale',
+            shape=shape,
+            initializer=scale_initializer,
+            regularizer=None,
+            constraint=None,
+            dtype=dtype,
+            trainable=trainable)
+        return loc, scale
 
 
     # def create_prior(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances, prior_mean, prior_var):
