@@ -622,7 +622,7 @@ class CVI_NN(Cla_NN):
         return _fn
 
 
-    def custom_loc_scale_fn(loc_initializer, scale_initializer):
+    def custom_loc_scale_fn(self, loc_initializer, scale_initializer):
         def _fn(dtype, shape, name, trainable, add_variable_fn):
             loc = add_variable_fn(
                 name=name + '_loc',
