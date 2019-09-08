@@ -615,8 +615,8 @@ class CVI_NN(Cla_NN):
         def _fn(dtype, shape, name, trainable, add_variable_fn):
             loc_init = tf.compat.v1.constant_initializer(loc)
             scale_init = tf.compat.v1.constant_initializer(scale)
-            loc, scale = custom_loc_scale_fn(loc_init, scale_init, dtype, shape, name, isPosterior, add_variable_fn)
-            dist = normal_lib.Normal(loc=loc, scale=scale)
+            new_loc, new_scale = custom_loc_scale_fn(loc_init, scale_init, dtype, shape, name, isPosterior, add_variable_fn)
+            dist = normal_lib.Normal(loc=new_loc, scale=new_scale)
             batch_ndims = tf.size(input=dist.batch_shape_tensor())
             return independent_lib.Independent(dist, reinterpreted_batch_ndims=batch_ndims)
         return _fn
