@@ -3,6 +3,7 @@ import numpy as np
 from copy import deepcopy
 import tensorflow_probability as tfp
 from tensorflow_probability import distributions as tfd
+from tensorflow_probability.python.distributions import independent as independent_lib
 from tensorflow_probability import layers as tfpl
 from tensorflow_probability.python.layers import util as tfp_layers_util
 
@@ -511,14 +512,8 @@ class CVI_NN(Cla_NN):
             for i in range(len(prev_means)):
                 new_priors_kernel.append(self.custom_mean_field_normal_fn(loc=prev_means[i][0], scale=prev_log_variances[i][0]))
                 new_priors_bias.append(self.custom_mean_field_normal_fn(loc=prev_means[i][1], scale=prev_log_variances[i][1]))
-                kernel_loc_init = tf.compat.v1.constant_initializer(prev_means[i][0])
-                bias_loc_init = tf.compat.v1.constant_initializer(prev_means[i][1])
-                kernel_scale_init = tf.compat.v1.constant_initializer(prev_log_variances[i][0])
-                bias_scale_init = tf.compat.v1.constant_initializer(prev_log_variances[i][1])
-                bias_posterior = tfp_layers_util.default_mean_field_normal_fn(loc_initializer = bias_loc_init, untransformed_scale_initializer = bias_scale_init)
-                kernel_posterior = tfp_layers_util.default_mean_field_normal_fn(loc_initializer = kernel_loc_init, untransformed_scale_initializer = kernel_scale_init)
-                new_posterior_bias.append(bias_posterior)
-                new_posterior_kernel.append(kernel_posterior)
+                new_posterior_bias.append(self.custom_mean_field_normal_fn(loc=prev_means[i][1], scale=prev_log_variances[i][1], isPosterior = True))
+                new_posterior_kernel.append(self.custom_mean_field_normal_fn(loc=prev_means[i][0], scale=prev_log_variances[i][0], isPosterior = True))
 
             self.neural_net = tf.keras.Sequential([
             tfp.layers.Convolution2DReparameterization(6,
@@ -609,12 +604,46 @@ class CVI_NN(Cla_NN):
             qstds.append((kernel_std, bias_std))
         return [qmeans, qstds]
 
-    def custom_mean_field_normal_fn(self, loc, scale):
+    # def custom_mean_field_normal_fn(self, loc, scale):
+    #     def _fn(dtype, shape, name, trainable, add_variable_fn):
+    #         dist = tfd.Normal(loc=loc, scale=scale)
+    #         batch_ndims = tf.size(input=dist.batch_shape_tensor())
+    #         return independent_lib.Independent(dist, reinterpreted_batch_ndims=batch_ndims)
+    #     return _fn
+
+    def custom_mean_field_normal_fn(self, loc, scale, isPosterior = False):
         def _fn(dtype, shape, name, trainable, add_variable_fn):
-            dist = tfd.Normal(loc=loc, scale=scale)
+            loc_init = tf.compat.v1.constant_initializer(loc)
+            scale_init = tf.compat.v1.constant_initializer(scale)
+            loc, scale = custom_loc_scale_fn(loc_init, scale_init, dtype, shape, name, isPosterior, add_variable_fn)
+            dist = normal_lib.Normal(loc=loc, scale=scale)
             batch_ndims = tf.size(input=dist.batch_shape_tensor())
-            return tfd.Independent(dist, reinterpreted_batch_ndims=batch_ndims)
+            return independent_lib.Independent(dist, reinterpreted_batch_ndims=batch_ndims)
         return _fn
+
+
+    def custom_loc_scale_fn(loc_initializer, scale_initializer):
+        def _fn(dtype, shape, name, trainable, add_variable_fn):
+            loc = add_variable_fn(
+                name=name + '_loc',
+                shape=shape,
+                initializer=loc_initializer,
+                regularizer=None,
+                constraint=None,
+                dtype=dtype,
+                trainable=trainable)
+
+            scale = add_variable_fn(
+                name=name + '_untransformed_scale',
+                shape=shape,
+                initializer=scale_initializer,
+                regularizer=None,
+                constraint=None,
+                dtype=dtype,
+                trainable=trainable)
+            return loc, scale
+        return _fn
+
 
     # def create_prior(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances, prior_mean, prior_var):
     #
