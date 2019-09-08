@@ -616,7 +616,7 @@ class CVI_NN(Cla_NN):
         def _fn(dtype, shape, name, trainable, add_variable_fn):
             loc_init = tf.compat.v1.constant_initializer(loc)
             scale_init = tf.compat.v1.constant_initializer(scale)
-            loc = add_variable_fn(
+            new_loc = add_variable_fn(
                 name=name + '_loc',
                 shape=shape,
                 initializer=loc_init,
@@ -624,7 +624,7 @@ class CVI_NN(Cla_NN):
                 constraint=None,
                 dtype=dtype,
                 trainable=isPosterior)
-            scale = add_variable_fn(
+            new_scale = add_variable_fn(
                 name=name + '_untransformed_scale',
                 shape=shape,
                 initializer=scale_init,
