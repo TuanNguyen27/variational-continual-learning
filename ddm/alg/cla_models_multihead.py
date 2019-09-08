@@ -4,6 +4,7 @@ from copy import deepcopy
 import tensorflow_probability as tfp
 from tensorflow_probability import distributions as tfd
 from tensorflow_probability.python.distributions import independent as independent_lib
+from tensorflow_probability.python.distributions import normal as normal_lib
 from tensorflow_probability import layers as tfpl
 from tensorflow_probability.python.layers import util as tfp_layers_util
 
@@ -615,33 +616,26 @@ class CVI_NN(Cla_NN):
         def _fn(dtype, shape, name, trainable, add_variable_fn):
             loc_init = tf.compat.v1.constant_initializer(loc)
             scale_init = tf.compat.v1.constant_initializer(scale)
-            new_loc, new_scale = self.custom_loc_scale_fn(loc_init, scale_init, dtype, shape, name, isPosterior, add_variable_fn)
+            loc = add_variable_fn(
+                name=name + '_loc',
+                shape=shape,
+                initializer=loc_init,
+                regularizer=None,
+                constraint=None,
+                dtype=dtype,
+                trainable=isPosterior)
+            scale = add_variable_fn(
+                name=name + '_untransformed_scale',
+                shape=shape,
+                initializer=scale_init,
+                regularizer=None,
+                constraint=None,
+                dtype=dtype,
+                trainable=isPosterior)
             dist = normal_lib.Normal(loc=new_loc, scale=new_scale)
             batch_ndims = tf.size(input=dist.batch_shape_tensor())
             return independent_lib.Independent(dist, reinterpreted_batch_ndims=batch_ndims)
         return _fn
-
-
-    def custom_loc_scale_fn(self, loc_initializer, scale_initializer, dtype, shape, name, trainable, add_variable_fn):
-        loc = add_variable_fn(
-            name=name + '_loc',
-            shape=shape,
-            initializer=loc_initializer,
-            regularizer=None,
-            constraint=None,
-            dtype=dtype,
-            trainable=trainable)
-
-        scale = add_variable_fn(
-            name=name + '_untransformed_scale',
-            shape=shape,
-            initializer=scale_initializer,
-            regularizer=None,
-            constraint=None,
-            dtype=dtype,
-            trainable=trainable)
-        return loc, scale
-
 
     # def create_prior(self, in_dim, hidden_size, out_dim, prev_weights, prev_variances, prior_mean, prior_var):
     #
