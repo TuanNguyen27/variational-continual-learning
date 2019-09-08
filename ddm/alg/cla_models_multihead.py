@@ -601,7 +601,7 @@ class CVI_NN(Cla_NN):
                 bias_std = layer.bias_posterior.stddev()
             except AttributeError:
                 continue
-            qmeans.append((kernel_mean,bias_mean))
+            qmeans.append((kernel_mean, bias_mean))
             qstds.append((kernel_std, bias_std))
         return [qmeans, qstds]
 
@@ -613,6 +613,8 @@ class CVI_NN(Cla_NN):
     #     return _fn
 
     def custom_mean_field_normal_fn(self, loc, scale, isPosterior = False):
+        #if isPosterior = True, loc and scale will be trainable
+        #otherwise they will be fixed (when used for priors)
         def _fn(dtype, shape, name, trainable, add_variable_fn):
             loc_init = tf.compat.v1.constant_initializer(loc)
             scale_init = tf.compat.v1.constant_initializer(scale)
@@ -625,7 +627,7 @@ class CVI_NN(Cla_NN):
                 dtype=dtype,
                 trainable=isPosterior)
             new_scale = add_variable_fn(
-                name=name + '_untransformed_scale',
+                name=name + '_scale',
                 shape=shape,
                 initializer=scale_init,
                 regularizer=None,
