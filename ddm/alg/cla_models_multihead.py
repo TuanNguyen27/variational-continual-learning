@@ -515,8 +515,8 @@ class CVI_NN(Cla_NN):
             temp_sess.run(tf.compat.v1.global_variables_initializer())
             prev_means = temp_sess.run(prev_means)
             prev_log_variances= temp_sess.run(prev_log_variances)
-            print(prev_means[0][0])
-            print(prev_log_variances[0][0])
+            # print(prev_means[0][0])
+            # print(prev_log_variances[0][0])
             new_priors_kernel = []
             new_priors_bias = []
             new_posterior_bias = []
