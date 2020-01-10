@@ -4,6 +4,8 @@ An implementation of the Variational Continual Learning (VCL) algorithms propose
 * For deep discriminative model tests, see README in [ddm/](ddm/).
 * For deep generative model tests, see README in [dgm/](dgm/).
 
+Testing CNNs
+
 Also has an implementation of the "[Improving and Understanding Variational Continual Learning](https://arxiv.org/abs/1905.02099)" paper by Swaroop, Nguyen, Bui, and Turner (2019).
 
 * See README in [improved_ddm/](improved_ddm/)
