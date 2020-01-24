@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import utils
 from cla_models_multihead import Vanilla_NN, MFVI_NN, CVI_NN
+import pdb
 
 def run_vcl(hidden_size, no_epochs, data_gen, coreset_method, coreset_size=0, batch_size=None, single_head=True):
     in_dim, out_dim = data_gen.get_dims()
@@ -21,11 +22,8 @@ def run_vcl(hidden_size, no_epochs, data_gen, coreset_method, coreset_size=0, ba
 
         # Train network with maximum likelihood to initialize first model
         if task_id == 0:
-            ml_model = CVI_NN(in_dim, hidden_size, out_dim, x_train.shape[0])
-            ml_model.train(x_train, y_train, task_id, 10, bsize)
-            mf_weights = ml_model.create_weights()[0]
             mf_variances = None
-            ml_model.close_session()
+            mf_weights = None
 
         # Select coreset if needed
         if coreset_size > 0:
@@ -36,6 +34,9 @@ def run_vcl(hidden_size, no_epochs, data_gen, coreset_method, coreset_size=0, ba
         no_epochs = 0 if task_id == 1 else 10
         mf_model.train(x_train, y_train, head, no_epochs, bsize)
         mf_weights, mf_variances = mf_model.create_weights()
+        if task == 1:
+            pdb.set_trace()
+        prev_mf_weights, prev_mf_variances = mf_weights, mf_variances
         # sess = mf_model.sess
         # with sess.as_default():
         #     if not (mf_weights and mf_variances):
