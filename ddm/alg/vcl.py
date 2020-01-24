@@ -34,7 +34,7 @@ def run_vcl(hidden_size, no_epochs, data_gen, coreset_method, coreset_size=0, ba
         no_epochs = 0 if task_id == 1 else 10
         mf_model.train(x_train, y_train, head, no_epochs, bsize)
         mf_weights, mf_variances = mf_model.create_weights()
-        if task == 1:
+        if task_id == 1:
             pdb.set_trace()
         prev_mf_weights, prev_mf_variances = mf_weights, mf_variances
         # sess = mf_model.sess
