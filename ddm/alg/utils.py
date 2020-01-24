@@ -39,8 +39,9 @@ def get_scores(model, x_testsets, y_testsets, x_coresets, y_coresets, hidden_siz
         x_test, y_test = x_testsets[i], y_testsets[i]
 
         pred = final_model.prediction_prob(x_test, head)
-        # pred_mean = np.mean(pred, axis=1)
-        #pred_y = np.argmax(pred_mean, axis=1)
+        pdb.set_trace()
+        # pred_mean = np.mean(pred, axis=0)
+        # pred_y = np.argmax(pred_mean, axis=1)
         pred_y = np.argmax(pred, axis=1)
         y = np.argmax(y_test, axis=1)
         #pdb.set_trace()
