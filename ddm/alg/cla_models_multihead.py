@@ -510,80 +510,64 @@ class CVI_NN(Cla_NN):
                                                 bias_prior_fn=tfp_layers_util.default_multivariate_normal_fn)
             ])
         else:
-            print("or here instead?")
-            temp_sess = tf.compat.v1.Session()
-            temp_sess.run(tf.compat.v1.global_variables_initializer())
-            prev_means = temp_sess.run(prev_means)
-            prev_log_variances= temp_sess.run(prev_log_variances)
-            # print(prev_means[0][0])
-            # print(prev_log_variances[0][0])
             new_priors_kernel = []
             new_priors_bias = []
-            new_posterior_bias = []
-            new_posterior_kernel = []
 
             for i in range(len(prev_means)):
                 new_priors_kernel.append(self.custom_mean_field_normal_fn(loc=prev_means[i][0], scale=prev_log_variances[i][0]))
                 new_priors_bias.append(self.custom_mean_field_normal_fn(loc=prev_means[i][1], scale=prev_log_variances[i][1]))
-                new_posterior_bias.append(self.custom_mean_field_normal_fn(loc=prev_means[i][1], scale=prev_log_variances[i][1], isPosterior = True))
-                new_posterior_kernel.append(self.custom_mean_field_normal_fn(loc=prev_means[i][0], scale=prev_log_variances[i][0], isPosterior = True))
 
-            self.neural_net = tf.keras.Sequential([
-            tfp.layers.Convolution2DReparameterization(6,
-                                                       kernel_size = 5,
-                                                       padding = 'SAME',
-                                                       bias_posterior_fn = new_posterior_bias[0],
-                                                       kernel_posterior_fn = new_posterior_kernel[0],
-                                                       kernel_prior_fn = new_priors_kernel[0],
-                                                       bias_prior_fn = new_priors_bias[0],
-                                                       # kernel_posterior_tensor_fn=lambda d: d.sample(10),
-                                                       # bias_posterior_tensor_fn=lambda d: d.sample(10),
-                                                       activation=tf.nn.relu),
-            tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
-                                         strides=[2, 2],
-                                         padding="SAME"),
-            tfp.layers.Convolution2DReparameterization(16,
-                                            kernel_size=5,
-                                            padding="SAME",
-                                            bias_posterior_fn = new_posterior_bias[1],
-                                            kernel_posterior_fn = new_posterior_kernel[1],
-                                            kernel_prior_fn = new_priors_kernel[1],
-                                            bias_prior_fn = new_priors_bias[1],
-                                            # kernel_posterior_tensor_fn=lambda d: d.sample(10),
-                                            # bias_posterior_tensor_fn=lambda d: d.sample(10),
-                                            activation=tf.nn.relu),
-            tf.keras.layers.MaxPooling2D(pool_size=[2, 2],
-                                         strides=[2, 2],
-                                         padding="SAME"),
-            tfp.layers.Convolution2DReparameterization(120,
-                                            kernel_size=5,
-                                            padding="SAME",
-                                            bias_posterior_fn = new_posterior_bias[2],
-                                            kernel_posterior_fn = new_posterior_kernel[2],
-                                            kernel_prior_fn = new_priors_kernel[2],
-                                            bias_prior_fn = new_priors_bias[2],
-                                            # kernel_posterior_tensor_fn=lambda d: d.sample(10),
-                                            # bias_posterior_tensor_fn=lambda d: d.sample(10),
-                                            activation=tf.nn.relu),
-            tf.keras.layers.Flatten(),
-            tfp.layers.DenseReparameterization(84,
-                                               bias_posterior_fn = new_posterior_bias[3],
-                                               kernel_posterior_fn = new_posterior_kernel[3],
-                                               kernel_prior_fn = new_priors_kernel[3],
-                                               bias_prior_fn = new_priors_bias[3],
-                                               # kernel_posterior_tensor_fn=lambda d: d.sample(10),
-                                               # bias_posterior_tensor_fn=lambda d: d.sample(10),
-                                               activation=tf.nn.relu),
-            # how to make this multi-head ?
-            tfp.layers.DenseReparameterization(10,
-                                               bias_posterior_fn = new_posterior_bias[4],
-                                               kernel_posterior_fn = new_posterior_kernel[4],
-                                               kernel_prior_fn = new_priors_kernel[4],
-                                               # kernel_posterior_tensor_fn=lambda d: d.sample(10),
-                                               # bias_posterior_tensor_fn=lambda d: d.sample(10),
-                                               bias_prior_fn = new_priors_bias[4])
-            ])
-            temp_sess.close()
+            self.neural_net = tf.keras.Sequential(
+                [
+                    tfp.layers.Convolution2DReparameterization(
+                        6,
+                        kernel_size = 5,
+                        padding = 'SAME',
+                        bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn(),
+                        kernel_posterior_fn = tfp_layers_util.default_mean_field_normal_fn(),
+                        kernel_prior_fn = new_priors_kernel[0],
+                        bias_prior_fn = new_priors_bias[0],
+                        activation=tf.nn.relu
+                        ),
+                    tf.keras.layers.MaxPooling2D(pool_size=[2, 2], strides=[2, 2], padding="SAME"),
+                    tfp.layers.Convolution2DReparameterization(
+                        16,
+                        kernel_size=5,
+                        padding="SAME",
+                        bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn(),
+                        kernel_posterior_fn = tfp_layers_util.default_mean_field_normal_fn(),
+                        kernel_prior_fn = new_priors_kernel[1],
+                        bias_prior_fn = new_priors_bias[1],
+                        activation=tf.nn.relu
+                        ),
+                    tf.keras.layers.MaxPooling2D(pool_size=[2, 2], strides=[2, 2], padding="SAME"),
+                    tfp.layers.Convolution2DReparameterization(
+                        120,
+                        kernel_size=5,
+                        padding="SAME",
+                        bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn(),
+                        kernel_posterior_fn = tfp_layers_util.default_mean_field_normal_fn(),
+                        kernel_prior_fn = new_priors_kernel[2],
+                        bias_prior_fn = new_priors_bias[2],
+                        activation=tf.nn.relu
+                        ),
+                    tf.keras.layers.Flatten(),
+                    tfp.layers.DenseReparameterization(
+                        84,
+                        bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn(),
+                        kernel_posterior_fn = tfp_layers_util.default_mean_field_normal_fn(),
+                        kernel_prior_fn = new_priors_kernel[3],
+                        bias_prior_fn = new_priors_bias[3],
+                        activation=tf.nn.relu
+                        ),
+                    tfp.layers.DenseReparameterization(
+                        10,
+                        bias_posterior_fn=tfp_layers_util.default_mean_field_normal_fn(),
+                        kernel_posterior_fn = tfp_layers_util.default_mean_field_normal_fn(),
+                        kernel_prior_fn = new_priors_kernel[4],
+                        bias_prior_fn = new_priors_bias[4])
+                ]
+            )
 
         self.weights = self.create_weights()
         self.no_layers = len(self.neural_net.layers)
